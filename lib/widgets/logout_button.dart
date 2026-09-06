@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:achivment_together/services/auth_service.dart';
+import 'package:habits_together/services/auth_service.dart';
 
 class LogOutButton extends StatelessWidget {
   const LogOutButton({super.key});
@@ -23,13 +23,13 @@ class LogOutButton extends StatelessWidget {
                 actions: [
                   CupertinoActionSheetAction(
                     isDestructiveAction: true,
-                    onPressed: () => Navigator.pop(context, false),
+                    onPressed: () => Navigator.pop(context, true),
                     child: const Text('Выйти'),
                   ),
                 ],
                 cancelButton: CupertinoActionSheetAction(
                   isDefaultAction: true,
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context, false),
                   child: const Text(
                     'Отмена',
                     style: TextStyle(

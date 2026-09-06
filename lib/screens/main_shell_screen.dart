@@ -1,5 +1,5 @@
-import 'package:achivment_together/screens/leaderboard_screen.dart';
-import 'package:achivment_together/widgets/custom_navigation_bar.dart';
+import 'package:habits_together/screens/leaderboard_screen.dart';
+import 'package:habits_together/widgets/custom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/navigation/navigation_cubit.dart';

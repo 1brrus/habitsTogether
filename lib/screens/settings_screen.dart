@@ -1,6 +1,6 @@
-import 'package:achivment_together/bloc/theme/theme_cubit.dart';
-import 'package:achivment_together/widgets/logout_button.dart';
-import 'package:achivment_together/widgets/settings_card.dart';
+import 'package:habits_together/bloc/theme/theme_cubit.dart';
+import 'package:habits_together/widgets/logout_button.dart';
+import 'package:habits_together/widgets/settings_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

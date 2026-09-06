@@ -24,6 +24,8 @@ class _AuthScreenState extends State<AuthScreen> {
 
   bool _showHeader = false;
 
+  bool _isFormValid = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,11 +42,26 @@ class _AuthScreenState extends State<AuthScreen> {
       });
     });
 
+    _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _showHeader = true;
       });
     });
+  }
+
+  void _validateForm() {
+    final isValid =
+        _emailController.text.trim().isNotEmpty &&
+        _passwordController.text.trim().isNotEmpty;
+
+    if (isValid != _isFormValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
   }
 
   @override
@@ -101,13 +118,13 @@ class _AuthScreenState extends State<AuthScreen> {
         children: [
           Positioned(
             top: -170,
-            left: -170,
+            left: -200,
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 1000),
               opacity: _showHeader ? 0.8 : 0.0,
               child: Container(
-                width: 500,
-                height: 500,
+                width: 550,
+                height: 550,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
@@ -257,23 +274,49 @@ class _AuthScreenState extends State<AuthScreen> {
 
                   // КНОПКА ОТПРАВКИ
                   _isLoading
-                      ? const CircularProgressIndicator()
-                      : GestureDetector(
-                          onTap: _submit,
-                          child: Container(
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                      ? CircularProgressIndicator(color: primaryColor)
+                      : AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: _isFormValid
+                                ? [
+                                    BoxShadow(
+                                      color: primaryColor.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                      blurRadius: 16,
+                                      spreadRadius: 2,
+                                    ),
+                                  ]
+                                : [],
+                          ),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
                             decoration: BoxDecoration(
-                              color: primaryColor,
+                              color: _isFormValid
+                                  ? primaryColor
+                                  : Colors.grey.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Text(
-                              _isSignUp ? 'Зарегистрироваться' : 'Войти',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                            child: GestureDetector(
+                              onTap: _isFormValid ? _submit : null,
+                              child: Container(
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                child: Text(
+                                  _isSignUp ? 'Зарегистрироваться' : 'Войти',
+                                  style: TextStyle(
+                                    color: _isFormValid
+                                        ? Colors.white
+                                        : Colors.white.withValues(alpha: 0.5),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

@@ -1,6 +1,6 @@
-import 'package:achivment_together/bloc/theme/theme_cubit.dart';
-import 'package:achivment_together/screens/create_habit_screen.dart';
-import 'package:achivment_together/screens/detailed_habit_screen.dart';
+import 'package:habits_together/bloc/theme/theme_cubit.dart';
+import 'package:habits_together/screens/create_habit_screen.dart';
+import 'package:habits_together/screens/detailed_habit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -59,7 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Отмена'),
+            child: const Text(
+              'Отмена',
+              style: TextStyle(
+                color: CupertinoColors.systemBlue,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,

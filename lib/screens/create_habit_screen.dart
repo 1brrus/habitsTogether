@@ -11,6 +11,21 @@ class CreateHabitScreen extends StatefulWidget {
 class _CreateHabitScreenState extends State<CreateHabitScreen> {
   final TextEditingController _titleController = TextEditingController();
   bool _isLoading = false;
+  bool _isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleController.addListener(() {
+      final isNotEmpty = _titleController.text.trim().isNotEmpty;
+      if (isNotEmpty != _isButtonEnabled) {
+        setState(() {
+          _isButtonEnabled = isNotEmpty;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -91,6 +106,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
             ),
             child: TextField(
               controller: _titleController,
+              cursorColor: primaryColor,
               autofocus: true,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
@@ -102,29 +118,62 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
           ),
           const SizedBox(height: 24),
 
-          ElevatedButton(
-            onPressed: _isLoading ? null : _createHabit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(16),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: _isButtonEnabled && !_isLoading
+                  ? [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              decoration: BoxDecoration(
+                color: _isButtonEnabled
+                    ? primaryColor
+                    : Colors.grey.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ElevatedButton(
+                onPressed: (_isButtonEnabled && !_isLoading)
+                    ? _createHabit
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  disabledBackgroundColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(16),
+                  ),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        'Создать привычку',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: _isButtonEnabled
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.5),
+                        ),
+                      ),
               ),
             ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : const Text(
-                    'Создать привычку',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
           ),
         ],
       ),
