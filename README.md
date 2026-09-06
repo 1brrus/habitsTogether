@@ -1,3 +1,3 @@
-# achivment_together
+#Habits Together
 
-A new Flutter project.
+##This is a new level of habits tracking
