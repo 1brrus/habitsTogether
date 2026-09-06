@@ -13,28 +13,31 @@ class LogOutButton extends StatelessWidget {
       child: GestureDetector(
         onTap: () async {
           {
-            final confirm = await showCupertinoDialog<bool>(
+            final confirm = await showCupertinoModalPopup<bool>(
               context: context,
-              builder: (context) => CupertinoAlertDialog(
+              builder: (context) => CupertinoActionSheet(
                 title: const Text('Выйти из аккаунта'),
-                content: const Text(
+                message: const Text(
                   'Вы уверены, что хотите выйти из аккаунта?',
                 ),
                 actions: [
-                  CupertinoDialogAction(
-                    isDefaultAction: true,
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Отмена'),
-                  ),
-                  CupertinoDialogAction(
+                  CupertinoActionSheetAction(
                     isDestructiveAction: true,
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text(
-                      'Выйти',
-                      style: TextStyle(color: Colors.red),
-                    ),
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Выйти'),
                   ),
                 ],
+                cancelButton: CupertinoActionSheetAction(
+                  isDefaultAction: true,
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text(
+                    'Отмена',
+                    style: TextStyle(
+                      color: CupertinoColors.systemBlue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             );
 

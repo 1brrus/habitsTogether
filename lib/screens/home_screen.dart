@@ -134,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
+                              fullscreenDialog: true,
                               builder: (context) => const DetailedHabitScreen(),
                             ),
                           );
