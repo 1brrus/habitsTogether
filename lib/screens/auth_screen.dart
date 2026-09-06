@@ -275,47 +275,44 @@ class _AuthScreenState extends State<AuthScreen> {
                   // КНОПКА ОТПРАВКИ
                   _isLoading
                       ? CircularProgressIndicator(color: primaryColor)
-                      : AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: _isFormValid
-                                ? [
-                                    BoxShadow(
-                                      color: primaryColor.withValues(
-                                        alpha: 0.4,
-                                      ),
-                                      blurRadius: 16,
-                                      spreadRadius: 2,
-                                    ),
-                                  ]
-                                : [],
-                          ),
+                      : GestureDetector(
+                          onTap: _isFormValid ? _submit : null,
+                          behavior: HitTestBehavior.opaque,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 250),
                             decoration: BoxDecoration(
-                              color: _isFormValid
-                                  ? primaryColor
-                                  : Colors.grey.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(16),
+                              boxShadow: _isFormValid
+                                  ? [
+                                      BoxShadow(
+                                        color: primaryColor.withValues(
+                                          alpha: 0.4,
+                                        ),
+                                        blurRadius: 16,
+                                        spreadRadius: 2,
+                                      ),
+                                    ]
+                                  : [],
                             ),
-                            child: GestureDetector(
-                              onTap: _isFormValid ? _submit : null,
-                              child: Container(
-                                width: double.infinity,
-                                alignment: Alignment.center,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                child: Text(
-                                  _isSignUp ? 'Зарегистрироваться' : 'Войти',
-                                  style: TextStyle(
-                                    color: _isFormValid
-                                        ? Colors.white
-                                        : Colors.white.withValues(alpha: 0.5),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                color: _isFormValid
+                                    ? primaryColor
+                                    : Colors.grey.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                _isSignUp ? 'Зарегестрироваться' : 'Войти',
+                                style: TextStyle(
+                                  color: _isFormValid
+                                      ? Colors.white
+                                      : Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
