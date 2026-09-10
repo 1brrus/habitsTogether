@@ -1,6 +1,5 @@
 import 'package:habits_together/bloc/theme/theme_cubit.dart';
 import 'package:habits_together/screens/create_habit_screen.dart';
-import 'package:habits_together/screens/detailed_habit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -29,9 +28,37 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _habitsFuture = Supabase.instance.client
           .from('habits')
-          .select()
+          .select('*, habit_logs(completed_at)')
           .order('created_at', ascending: true);
     });
+  }
+
+  Future<void> _toggleHabit(String habitId, bool isCompleted) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    final todayStr = DateTime.now().toIso8601String().split('T')[0];
+
+    try {
+      if (isCompleted) {
+        await Supabase.instance.client.from('habit_logs').upsert({
+          'habit_id': habitId,
+          'user_id': userId,
+          'completed_at': todayStr,
+        }, onConflict: 'habit_id, completed_at');
+      } else {
+        await Supabase.instance.client
+            .from('habit_logs')
+            .delete()
+            .eq('habit_id', habitId)
+            .eq('completed_at', todayStr);
+      }
+      _fetchHabits();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Ошибка обновления: $e')));
+      }
+    }
   }
 
   void _openCreateHabitModal() async {
@@ -134,16 +161,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       final habit = habits[index];
 
+                      final logs = habit['habit_logs'] as List<dynamic>? ?? [];
+                      final completedDates = logs
+                          .map((log) => log['completed_at'].toString())
+                          .toSet();
+
                       return HabitCard(
                         habitName: habit['title'] ?? '',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              fullscreenDialog: true,
-                              builder: (context) => const DetailedHabitScreen(),
-                            ),
-                          );
+                        completedDates: completedDates,
+                        onToggle: (bool isCompleted) {
+                          _toggleHabit(habit['id'], isCompleted);
                         },
                         onLongPress: () {
                           _deleteHabit(habit['id']);
