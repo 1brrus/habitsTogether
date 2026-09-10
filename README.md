@@ -1,3 +1,3 @@
 # Habits Together
 
-## This is a new level of habits tracking
+## New level of habits tracking
