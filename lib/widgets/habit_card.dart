@@ -1,6 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class HabitCard extends StatefulWidget {
+  final String habitId;
   final String habitName;
   final Set<String> completedDates;
   final Function(bool isCompleted) onToggle;
@@ -9,6 +12,7 @@ class HabitCard extends StatefulWidget {
 
   const HabitCard({
     super.key,
+    required this.habitId,
     required this.habitName,
     required this.completedDates,
     required this.onToggle,
@@ -23,6 +27,60 @@ class HabitCard extends StatefulWidget {
 class _HabitCardState extends State<HabitCard> {
   String _formatDate(DateTime date) {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  void showShareHabitDialog(
+    BuildContext context,
+    String habitId,
+    String habitName,
+  ) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text('Пригласить друга в $habitName'),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              const Text('Отправь этот код другу, чтобы вести привычку вместе'),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGroupedBackground,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SelectableText(
+                  habitId,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: habitId));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Код скопирован в буфер обмена')),
+              );
+            },
+            child: const Text('Скопировать код'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Закрыть'),
+          ),
+        ],
+      ),
+    );
   }
 
   int _calculateStreak() {
@@ -130,6 +188,21 @@ class _HabitCardState extends State<HabitCard> {
                     )
                   else
                     const SizedBox.shrink(),
+
+                  IconButton(
+                    icon: const Icon(
+                      Icons.person_add_alt_1_rounded,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      showShareHabitDialog(
+                        context,
+                        widget.habitId,
+                        widget.habitName,
+                      );
+                    },
+                  ),
 
                   // Галочка выполнения в нижнем правом углу
                   GestureDetector(

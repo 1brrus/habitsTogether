@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,7 +39,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
 
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введине название привычки')),
+        const SnackBar(content: Text('Введите название привычки')),
       );
       return;
     }
@@ -47,8 +48,21 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
 
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
+
+      final habitResponse = await Supabase.instance.client
+          .from('habits')
+          .insert({'title': title, 'user_id': userId})
+          .select()
+          .single();
       await Supabase.instance.client.from('habits').insert({
         'title': title,
+        'user_id': userId,
+      });
+
+      final newHabitId = habitResponse['id'];
+
+      await Supabase.instance.client.from('habit_members').insert({
+        'habit_id': newHabitId,
         'user_id': userId,
       });
 
@@ -65,6 +79,51 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  Future<void> _joinHabitByCode(String code) async {
+    final cleanCode = code.trim();
+    if (cleanCode.isEmpty) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+
+      final habit = await Supabase.instance.client
+          .from('habits')
+          .select('id, title')
+          .eq('id', cleanCode)
+          .maybeSingle();
+
+      if (habit == null) {
+        throw Exception('Привычка с таким кодом не найдена');
+      }
+
+      await Supabase.instance.client.from('habit_members').upsert({
+        'habit_id': cleanCode,
+        'user_id': userId,
+      });
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Вы присоеденились к "${habit['title']}"!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Ошибка: ${e.toString().replaceAll('Exception', '')}',
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -174,6 +233,47 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                       ),
               ),
             ),
+          ),
+          TextButton.icon(
+            icon: Icon(Icons.group_add_rounded, color: primaryColor),
+            label: Text(
+              'Присоедениться по коду друга',
+              style: TextStyle(color: primaryColor),
+            ),
+            onPressed: () {
+              final controller = TextEditingController();
+              showCupertinoDialog(
+                context: context,
+                builder: (context) => CupertinoAlertDialog(
+                  title: const Text('Ввести код привычки'),
+                  content: Padding(
+                    padding: const EdgeInsetsGeometry.only(top: 10),
+                    child: CupertinoTextField(
+                      controller: controller,
+                      placeholder: 'Вставьте UUID код...',
+                    ),
+                  ),
+                  actions: [
+                    CupertinoDialogAction(
+                      isDestructiveAction: true,
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Отмена'),
+                    ),
+                    CupertinoDialogAction(
+                      isDefaultAction: true,
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _joinHabitByCode(controller.text);
+                      },
+                      child: const Text(
+                        'Войти',
+                        style: TextStyle(color: CupertinoColors.activeBlue),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

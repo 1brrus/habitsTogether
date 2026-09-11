@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 import '../widgets/habit_card.dart';
 import '../widgets/add_habits_card.dart';
@@ -25,10 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _fetchHabits() {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
     setState(() {
       _habitsFuture = Supabase.instance.client
           .from('habits')
-          .select('*, habit_logs(completed_at)')
+          .select('*, habit_logs(completed_at), habit_members!inner(user_id)')
+          .eq('habit_members.user_id', userId!)
           .order('created_at', ascending: true);
     });
   }
@@ -167,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           .toSet();
 
                       return HabitCard(
+                        habitId: habit['id'],
                         habitName: habit['title'] ?? '',
                         completedDates: completedDates,
                         onToggle: (bool isCompleted) {
