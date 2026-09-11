@@ -47,7 +47,7 @@ class _HabitCardState extends State<HabitCard> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: CupertinoColors.systemGroupedBackground,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SelectableText(
@@ -71,7 +71,13 @@ class _HabitCardState extends State<HabitCard> {
                 SnackBar(content: Text('Код скопирован в буфер обмена')),
               );
             },
-            child: const Text('Скопировать код'),
+            child: const Text(
+              'Скопировать код',
+              style: TextStyle(
+                color: CupertinoColors.activeBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
